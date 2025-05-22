@@ -1,0 +1,25 @@
+
+{
+  "name": "filesharedrop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-qr-code": "^2.0.7",
+    "socket.io-client": "^4.7.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.38",
+    "@types/react-dom": "^18.2.14"
+  }
+}
