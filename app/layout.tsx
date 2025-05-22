@@ -52,7 +52,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
         {/* Footer */}
         <Footer />
-        <Toaster position="top-right" />
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );
