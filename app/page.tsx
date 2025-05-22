@@ -1,9 +1,8 @@
+'use client';
 
-"use client";
-
-import { useState } from "react";
-import QRCode from "react-qr-code";
-import { v4 as uuidv4 } from "uuid";
+import { useState } from 'react';
+import QRCode from 'react-qr-code';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
@@ -25,13 +24,20 @@ export default function Home() {
     <main className="p-10">
       <h1 className="text-3xl font-bold mb-4">FileShareDrop</h1>
       <input type="file" onChange={handleFileChange} />
-      <button onClick={generateLink} className="bg-blue-500 text-white px-4 py-2 mt-2 rounded">
+      <button
+        onClick={generateLink}
+        className="bg-blue-500 text-white px-4 py-2 mt-2 rounded"
+      >
         Generate Link
       </button>
       {shareId && (
         <div className="mt-4">
           <p className="mb-2">Share this link:</p>
-          <a className="text-blue-600 underline" href={`/share/${shareId}`} target="_blank">
+          <a
+            className="text-blue-600 underline"
+            href={`/share/${shareId}`}
+            target="_blank"
+          >
             {`${window.location.origin}/share/${shareId}`}
           </a>
           <div className="mt-4">
