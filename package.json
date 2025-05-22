@@ -10,7 +10,9 @@
     "postbuild": "next-sitemap",
     "lint": "next lint",
     "format": "prettier --write .",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:ci:coverage": "jest --coverage --runInBand"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.2",
