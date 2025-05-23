@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Shield, Clock } from 'lucide-react';
@@ -8,13 +10,13 @@ export default function Home() {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+      <section className="py-20 bg-gradient-to-r from-primary/10 to-secondary/10">
+        <div className="container px-4 mx-auto text-center">
+          <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-5xl">
             Share Files Securely with{' '}
             <span className="text-primary">FileShareDrop</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+          <p className="max-w-2xl mx-auto mb-8 text-lg text-muted-foreground">
             Upload files up to 50MB, get a shareable link, and rest easy knowing
             your files are deleted after 24 hours.
           </p>
@@ -25,19 +27,19 @@ export default function Home() {
       </section>
 
       {/* FileDropzone */}
-      <section className="container mx-auto px-4">
+      <section className="container px-4 mx-auto">
         <FileDropzone />
       </section>
 
       {/* Features Section */}
-      <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">
+      <section className="container px-4 mx-auto">
+        <h2 className="mb-12 text-3xl font-bold text-center">
           Why Choose FileShareDrop?
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card className="hover:shadow-lg transition-shadow">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader>
-              <Upload className="h-8 w-8 text-primary mb-2" />
+              <Upload className="w-8 h-8 mb-2 text-primary" />
               <CardTitle>Easy Uploads</CardTitle>
             </CardHeader>
             <CardContent>
@@ -46,9 +48,9 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader>
-              <Shield className="h-8 w-8 text-primary mb-2" />
+              <Shield className="w-8 h-8 mb-2 text-primary" />
               <CardTitle>Secure Sharing</CardTitle>
             </CardHeader>
             <CardContent>
@@ -57,9 +59,9 @@ export default function Home() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="transition-shadow hover:shadow-lg">
             <CardHeader>
-              <Clock className="h-8 w-8 text-primary mb-2" />
+              <Clock className="w-8 h-8 mb-2 text-primary" />
               <CardTitle>Fast & Temporary</CardTitle>
             </CardHeader>
             <CardContent>
@@ -72,10 +74,10 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to Share?</h2>
-          <p className="text-lg text-muted-foreground mb-8">
+      <section className="py-16 bg-muted">
+        <div className="container px-4 mx-auto text-center">
+          <h2 className="mb-6 text-3xl font-bold">Ready to Share?</h2>
+          <p className="mb-8 text-lg text-muted-foreground">
             Join thousands of users securely sharing files with FileShareDrop.
           </p>
           <Button size="lg" variant="default" asChild>

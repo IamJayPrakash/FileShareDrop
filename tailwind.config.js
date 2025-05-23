@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class', // Enable class-based dark mode
   content: [
     './app/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
@@ -9,11 +10,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#2563eb',
+        primary: '#48A6A7',
         secondary: '#6b7280',
         background: '#f9fafb',
         muted: '#f3f4f6',
         border: '#e5e7eb',
+        // Add dark mode colors
+        'background-dark': '#0f172a',
+        'muted-dark': '#1e293b',
+        'border-dark': '#334155',
+        'primary-dark': '#60a5fa',
+        'secondary-dark': '#94a3b8',
       },
       animation: {
         'spin-slow': 'spin 1.5s linear infinite',
@@ -31,7 +38,7 @@ module.exports = {
         },
       },
       boxShadow: {
-        glow: '0 0 10px rgba(37, 99, 235, 0.3)',
+        glow: '2px 0 10px rgba(37, 99, 235, 0.3)',
       },
     },
   },

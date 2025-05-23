@@ -4,8 +4,191 @@
 
 :root {
   --font-inter: 'Inter', sans-serif;
+  --background: #f9fafb;
+  --foreground: #18181b;
+  --muted: #f3f4f6;
+  --border: #e5e7eb;
+  --card: #fff;
+  --card-foreground: #18181b;
+  --primary: #03a791;
+  --primary-foreground: #fff;
+  --secondary: #6b7280;
+  --secondary-foreground: #fff;
+  --destructive: #ef4444;
+  --destructive-foreground: #fff;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --muted: #1e293b;
+  --border: #334155;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --primary: #f1efec;
+  --primary-foreground: #0f172a;
+  --secondary: #94a3b8;
+  --secondary-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #fff;
 }
 
 body {
   font-family: var(--font-inter);
+  background: var(--background);
+  color: var(--foreground);
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+/* Modern, elegant, and techy dark/light theme improvements */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.bg-background {
+  background-color: var(--background) !important;
+}
+
+.dark .bg-background {
+  background-color: var(--tw-bg-opacity, 1) theme('colors.background-dark');
+}
+
+.text-foreground {
+  color: var(--foreground) !important;
+}
+
+.dark .text-foreground {
+  color: #f1f5f9;
+}
+
+.bg-muted {
+  background-color: var(--muted) !important;
+}
+
+.dark .bg-muted {
+  background-color: theme('colors.muted-dark');
+}
+
+.border-border {
+  border-color: var(--border) !important;
+}
+
+.dark .border-border {
+  border-color: theme('colors.border-dark');
+}
+
+.text-muted-foreground {
+  color: #94a3b8 !important;
+}
+
+.dark .text-muted-foreground {
+  color: #94a3b8;
+}
+
+.bg-card {
+  background-color: var(--card) !important;
+}
+
+.text-card-foreground {
+  color: var(--card-foreground) !important;
+}
+
+/* Button styles for primary, secondary, and destructive actions */
+.bg-primary {
+  background-color: var(--primary) !important;
+}
+
+.text-primary-foreground {
+  color: var(--primary-foreground) !important;
+}
+
+.bg-secondary {
+  background-color: var(--secondary) !important;
+}
+
+.text-secondary-foreground {
+  color: var(--secondary-foreground) !important;
+}
+
+.bg-destructive {
+  background-color: var(--destructive) !important;
+}
+
+.text-destructive-foreground {
+  color: var(--destructive-foreground) !important;
+}
+
+/* Card glassmorphism for modern look */
+.bg-white\/80 {
+  background: var(--card);
+  backdrop-filter: blur(8px);
+}
+
+.dark .bg-white\/80 {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+}
+
+/* Button hover/active/focus for more elegant UI */
+button,
+.btn,
+.Button {
+  transition:
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+/* Add a subtle glow to primary buttons */
+.bg-primary {
+  box-shadow: 0 2px 16px 0 rgba(37, 99, 235, 0.08);
+}
+
+.dark .bg-primary {
+  box-shadow: 0 2px 16px 0 rgba(96, 165, 250, 0.12);
+}
+
+/* Animations for fade-in and slide-down */
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }

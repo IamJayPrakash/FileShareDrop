@@ -1,260 +1,501 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
-import { Upload, FileIcon, CheckCircle, AlertCircle, Copy } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { Card } from '@/components/ui/card';
+import { Upload, CircleDot, Circle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
+import QRCode from 'react-qr-code';
+import FileList from './FileList';
+import ProgressList from './ProgressList';
+import QRShare from './QRShare';
+import { generateKey, exportKey, importKey } from './crypto';
+import { setupConnection } from './webrtc';
+import { ReceivedFile } from './types';
+import io from 'socket.io-client'; // Added import for io
 
-interface UploadResponse {
-  url: string;
-  id: string;
-}
-
-export default function FileDropzone() {
+export default function FileDropzone({
+  roomProp = '',
+  keyProp = '',
+}: {
+  roomProp?: string;
+  keyProp?: string;
+}) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [status, setStatus] = useState<string>('');
+  const [isSender, setIsSender] = useState<boolean>(false);
+  const [keyB64, setKeyB64] = useState<string>(keyProp);
+  const [cryptoKey, setCryptoKey] = useState<CryptoKey | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [qr, setQr] = useState<string>('');
+  const [room, setRoom] = useState<string>(roomProp);
+  const [receivedFiles, setReceivedFiles] = useState<ReceivedFile[]>([]);
+  const [peerOnline, setPeerOnline] = useState(false);
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [fileProgress, setFileProgress] = useState<number[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [peerId, setPeerId] = useState<string | null>(null);
+  const [joined, setJoined] = useState(false);
+  const [offerStarted, setOfferStarted] = useState(false);
+  const [receiverReady, setReceiverReady] = useState(false);
+  const [transferComplete, setTransferComplete] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const socketRef = useRef<ReturnType<typeof io> | null>(null);
+  const pcRef = useRef<RTCPeerConnection | null>(null);
+  const dcRef = useRef<RTCDataChannel | null>(null);
 
   const resetState = useCallback(() => {
-    setError(null);
-    setShareUrl(null);
-    setSelectedFile(null);
+    console.log(`[${new Date().toISOString()}] Resetting state`);
+    setFiles([]);
+    setStatus('');
+    setUploading(false);
     setUploadProgress(0);
+    setQr('');
+    setRoom('');
+    setIsSender(false);
+    setKeyB64('');
+    setCryptoKey(null);
+    setPeerOnline(false);
+    setOfferStarted(false);
+    setError(null);
+    setReceiverReady(false);
+    setTransferComplete(false);
+    setReceivedFiles([]);
+    setFileProgress([]);
+    setPeerId(null);
+    setJoined(false);
+    if (dcRef.current && dcRef.current.readyState === 'open') {
+      console.log(`[${new Date().toISOString()}] Closing data channel`);
+      dcRef.current.close();
+    }
+    if (pcRef.current) {
+      console.log(`[${new Date().toISOString()}] Closing peer connection`);
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    if (socketRef.current) {
+      console.log(`[${new Date().toISOString()}] Disconnecting socket`);
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+    dcRef.current = null;
+    console.log(`[${new Date().toISOString()}] State reset complete`);
   }, []);
 
-  const handleFileUpload = useCallback(
-    async (file: File) => {
-      if (!file) return;
+  useEffect(() => {
+    console.log(`[${new Date().toISOString()}] Checking WebRTC support`);
+    if (typeof window !== 'undefined' && !('RTCPeerConnection' in window)) {
+      console.error(`[${new Date().toISOString()}] WebRTC not supported`);
+      setError(
+        'Your browser does not support secure peer-to-peer transfer. Please use a modern browser.'
+      );
+      toast.error(
+        'Your browser does not support secure peer-to-peer transfer. Please use a modern browser.'
+      );
+    } else {
+      console.log(`[${new Date().toISOString()}] WebRTC supported`);
+    }
+  }, []);
 
-      resetState();
-      setSelectedFile(file);
+  async function handleSend() {
+    console.log(
+      `[${new Date().toISOString()}] Handling send, files:`,
+      files.map((f) => f.name)
+    );
+    if (!files.length) {
+      console.warn(`[${new Date().toISOString()}] No files selected`);
+      toast.error('No files selected.');
+      return;
+    }
+    setUploading(true);
+    setUploadProgress(0);
+    setStatus('Encrypting and preparing files...');
+    let key: CryptoKey;
+    let keyB64ToUse = keyB64;
+    let roomToUse = room;
+    if (!roomProp && !keyProp) {
+      console.log(`[${new Date().toISOString()}] Generating new key and room`);
+      key = await generateKey();
+      keyB64ToUse = await exportKey(key);
+      setKeyB64(keyB64ToUse);
+      setCryptoKey(key);
+      roomToUse = Math.random().toString(36).substring(2, 10);
+      setRoom(roomToUse);
+      console.log(
+        `[${new Date().toISOString()}] Generated room: ${roomToUse}, keyB64: ${keyB64ToUse.slice(0, 10)}...`
+      );
+    } else {
+      console.log(`[${new Date().toISOString()}] Importing existing key`);
+      key = await importKey(keyB64ToUse);
+      setCryptoKey(key);
+    }
+    setIsSender(true);
+    setQr(
+      `${window.location.origin}/share/${roomToUse}?key=${encodeURIComponent(keyB64ToUse)}`
+    );
+    console.log(
+      `[${new Date().toISOString()}] QR code generated: ${window.location.origin}/share/${roomToUse}?key=${encodeURIComponent(keyB64ToUse).slice(0, 10)}...`
+    );
+    setStatus('Encrypting and uploading...');
+    await setupConnection(
+      true,
+      roomToUse,
+      keyB64ToUse,
+      files,
+      key,
+      setStatus,
+      setIsWaiting,
+      setError,
+      setFileProgress,
+      setReceivedFiles,
+      setUploadProgress,
+      socketRef,
+      pcRef,
+      dcRef,
+      setPeerOnline,
+      setPeerId,
+      setJoined,
+      setOfferStarted,
+      setReceiverReady,
+      setTransferComplete
+    );
+    setUploading(false);
+    setSendDisabled(true);
+    console.log(
+      `[${new Date().toISOString()}] Sender setup complete, status: Ready to share`
+    );
+  }
 
-      const formData = new FormData();
-      formData.append('file', file);
+  async function handleReceive(room: string, keyB64: string) {
+    console.log(
+      `[${new Date().toISOString()}] Handling receive, room: ${room}, keyB64: ${keyB64.slice(0, 10)}...`
+    );
+    setRoom(room);
+    setKeyB64(keyB64);
+    setIsSender(false);
+    setStatus('Connecting to sender...');
+    await setupConnection(
+      false,
+      room,
+      keyB64,
+      undefined,
+      undefined,
+      setStatus,
+      setIsWaiting,
+      setError,
+      setFileProgress,
+      setReceivedFiles,
+      setUploadProgress,
+      socketRef,
+      pcRef,
+      dcRef,
+      setPeerOnline,
+      setPeerId,
+      setJoined,
+      setOfferStarted,
+      setReceiverReady,
+      setTransferComplete
+    );
+    console.log(`[${new Date().toISOString()}] Receiver setup complete`);
+  }
 
-      setUploading(true);
+  useEffect(() => {
+    if (roomProp && keyProp) {
+      console.log(
+        `[${new Date().toISOString()}] Auto-joining as receiver, roomProp: ${roomProp}, keyProp: ${keyProp.slice(0, 10)}...`
+      );
+      handleReceive(roomProp, keyProp);
+    }
+  }, [roomProp, keyProp]);
 
-      try {
-        const progressInterval = setInterval(() => {
-          setUploadProgress((prev) => {
-            if (prev >= 90) {
-              clearInterval(progressInterval);
-              return prev;
-            }
-            return prev + Math.random() * 10;
-          });
-        }, 200);
+  useEffect(() => {
+    if (isSender && files.length > 0 && qr && room && keyB64 && cryptoKey) {
+      console.log(
+        `[${new Date().toISOString()}] Sender re-setup triggered, files: ${files.length}, room: ${room}, key: ${!!cryptoKey}`
+      );
+      setupConnection(
+        true,
+        room,
+        keyB64,
+        files,
+        cryptoKey,
+        setStatus,
+        setIsWaiting,
+        setError,
+        setFileProgress,
+        setReceivedFiles,
+        setUploadProgress,
+        socketRef,
+        pcRef,
+        dcRef,
+        setPeerOnline,
+        setPeerId,
+        setJoined,
+        setOfferStarted,
+        setReceiverReady,
+        setTransferComplete
+      );
+    }
+  }, [isSender, files, qr, room, keyB64, cryptoKey]);
 
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+  const [sendDisabled, setSendDisabled] = useState(false);
+  const handleReload = useCallback(() => {
+    console.log(`[${new Date().toISOString()}] Handling reload`);
+    resetState();
+    setSendDisabled(false);
+  }, [resetState]);
 
-        clearInterval(progressInterval);
-        setUploadProgress(100);
-
-        if (!res.ok) {
-          const errData = await res.json();
-          setError(errData.error || 'Upload failed');
-          toast.error(errData.error || 'Upload failed');
-        } else {
-          const data: UploadResponse = await res.json();
-          setShareUrl(data.url);
-          toast.success('File uploaded successfully!');
-        }
-      } catch (err) {
-        setError('Upload error occurred');
-        toast.error('Upload error occurred');
-      } finally {
-        setUploading(false);
-      }
-    },
-    [resetState]
-  );
-
-  const onDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDragOver(false);
-
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        handleFileUpload(files[0]);
-      }
-    },
-    [handleFileUpload]
-  );
+  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    console.log(`[${new Date().toISOString()}] File dropped`);
+    e.preventDefault();
+    setIsDragOver(false);
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length > 0) {
+      console.log(
+        `[${new Date().toISOString()}] Dropped files:`,
+        droppedFiles.map((f) => f.name)
+      );
+      setFiles((prev) => [...prev, ...droppedFiles]);
+    }
+  }, []);
 
   const onDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    console.log(`[${new Date().toISOString()}] Drag over`);
     e.preventDefault();
     setIsDragOver(true);
   }, []);
 
   const onDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    console.log(`[${new Date().toISOString()}] Drag leave`);
     e.preventDefault();
     setIsDragOver(false);
   }, []);
 
-  const onFileSelect = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (files && files.length > 0) {
-        handleFileUpload(files[0]);
-      }
-    },
-    [handleFileUpload]
-  );
-
-  const handleClick = useCallback(() => {
-    fileInputRef.current?.click();
+  const onFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(`[${new Date().toISOString()}] File selected via input`);
+    const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
+    if (selectedFiles.length > 0) {
+      console.log(
+        `[${new Date().toISOString()}] Selected files:`,
+        selectedFiles.map((f) => f.name)
+      );
+      setFiles((prev) => [...prev, ...selectedFiles]);
+    }
   }, []);
 
-  const copyToClipboard = useCallback(async () => {
-    if (shareUrl) {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast.success('Link copied to clipboard!');
-      } catch (err) {
-        toast.error('Failed to copy link');
-      }
+  const handleClick = useCallback(() => {
+    console.log(`[${new Date().toISOString()}] Dropzone clicked`);
+    if (fileInputRef.current && !uploading) {
+      fileInputRef.current.click();
     }
-  }, [shareUrl]);
+  }, [uploading]);
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+  const isReceiveMode = !!roomProp && !!keyProp;
+  console.log(
+    `[${new Date().toISOString()}] Render, isReceiveMode: ${isReceiveMode}, isSender: ${isSender}, files: ${files.length}`
+  );
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <div
-        onDrop={onDrop}
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onClick={handleClick}
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-          transition-all duration-300 ease-in-out
-          ${isDragOver ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border hover:border-primary/50 hover:bg-accent/20'}
-          ${uploading ? 'pointer-events-none opacity-75' : ''}
-        `}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          onChange={onFileSelect}
-          className="hidden"
-          disabled={uploading}
-        />
-
-        <div className="flex flex-col items-center space-y-4">
-          {uploading ? (
-            <>
-              <div className="relative">
-                <div className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-sm font-medium text-primary">
-                    {Math.round(uploadProgress)}%
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-2 w-full max-w-md">
-                <p className="text-sm text-muted-foreground">
-                  Uploading {selectedFile?.name}...
-                </p>
-                <Progress value={uploadProgress} className="h-2" />
-              </div>
-            </>
-          ) : shareUrl ? (
-            <>
-              <CheckCircle className="h-12 w-12 text-green-500" />
-              <div className="space-y-2">
-                <p className="text-lg font-semibold">Upload Complete!</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedFile?.name} (
-                  {formatFileSize(selectedFile?.size || 0)})
-                </p>
-              </div>
-            </>
-          ) : error ? (
-            <>
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-destructive">
-                  Upload Failed
-                </p>
-                <p className="text-sm text-muted-foreground">{error}</p>
-              </div>
-            </>
-          ) : (
-            <>
-              <Upload className="h-12 w-12 text-primary" />
-              <div className="space-y-2">
-                <p className="text-lg font-semibold">Drop your file here</p>
-                <p className="text-sm text-muted-foreground">
-                  or{' '}
-                  <span className="text-primary font-medium">
-                    click to browse
-                  </span>
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Maximum file size: 50MB
-                </p>
-              </div>
-            </>
-          )}
+    <Card
+      className="w-full max-w-2xl mx-auto bg-card text-card-foreground"
+      aria-label="File transfer card"
+    >
+      {error && (
+        <div
+          className="p-3 mb-4 text-center text-red-700 bg-red-100 rounded"
+          role="alert"
+        >
+          {error}
         </div>
-      </div>
-
-      {shareUrl && (
-        <div className="p-4 space-y-4">
-          <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg">
-            <FileIcon className="h-5 w-5 text-primary" />
-            <p className="text-sm font-medium truncate">{shareUrl}</p>
-            <Button size="sm" onClick={copyToClipboard}>
-              <Copy className="h-4 w-4 mr-2" />
-              Copy
-            </Button>
-          </div>
-          <div className="flex space-x-4">
-            <Button asChild>
-              <a href={shareUrl} target="_blank" rel="noopener noreferrer">
-                Open Share Page
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                resetState();
-                if (fileInputRef.current) fileInputRef.current.value = '';
-              }}
-            >
-              Upload Another
-            </Button>
+      )}
+      {!isReceiveMode && (
+        <div
+          title="Upload files"
+          onDrop={onDrop}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onClick={handleClick}
+          className={`
+            border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+            transition-all duration-300 ease-in-out
+            ${isDragOver ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border hover:border-primary/50 hover:bg-accent/20'}
+            ${uploading ? 'pointer-events-none opacity-75' : ''}
+            bg-background text-foreground
+          `}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={onFileSelect}
+            className="hidden"
+            disabled={uploading}
+            multiple
+            aria-label="Select files to send"
+          />
+          <div className="flex flex-col items-center space-y-4">
+            {isSender || (!roomProp && !keyProp) ? (
+              files.length > 0 ? (
+                <>
+                  <FileList
+                    files={files}
+                    onRemove={(idx) => {
+                      console.log(
+                        `[${new Date().toISOString()}] Removing file at index: ${idx}`
+                      );
+                      setFiles((prev) => prev.filter((_, i) => i !== idx));
+                      setQr('');
+                      setStatus('');
+                      setSendDisabled(false);
+                    }}
+                    disabled={uploading || sendDisabled}
+                  />
+                  {!sendDisabled ? (
+                    <Button
+                      className="px-4 py-2 mt-2 text-white rounded dark:text-stone-950 bg-primary"
+                      type="button"
+                      onClick={(e) => {
+                        console.log(
+                          `[${new Date().toISOString()}] Send button clicked`
+                        );
+                        e.stopPropagation();
+                        handleSend();
+                      }}
+                      disabled={uploading || files.length === 0 || sendDisabled}
+                      aria-label="Send files"
+                    >
+                      Send {files.length > 1 ? 'Files' : 'File'}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="px-4 py-2 mt-2 text-white rounded dark:text-stone-950 bg-secondary"
+                      type="button"
+                      onClick={handleReload}
+                      aria-label="Reload to send new files"
+                    >
+                      Reload / Send New Files
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Upload className="w-12 h-12 text-primary" />
+                  <div className="space-y-2">
+                    <p className="text-lg font-semibold">
+                      Drop your files here
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      or{' '}
+                      <span className="font-medium text-primary">
+                        click to browse
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Maximum file size: 50MB each
+                    </p>
+                  </div>
+                </>
+              )
+            ) : null}
           </div>
         </div>
       )}
-
-      {error && (
-        <Button
-          variant="destructive"
-          className="w-full mt-4"
-          onClick={() => {
-            resetState();
-            if (fileInputRef.current) fileInputRef.current.value = '';
-          }}
-        >
-          Try Again
-        </Button>
+      {isReceiveMode && (
+        <div className="flex flex-col items-center justify-center py-12">
+          {isWaiting && (
+            <>
+              <div className="w-10 h-10 mb-2 border-4 rounded-full border-primary border-t-transparent animate-spin" />
+              <div className="mb-2 text-base font-medium text-primary">
+                Waiting for sender to transfer files...
+              </div>
+              <div className="mb-4 text-xs text-muted-foreground">
+                Keep this page open. The transfer will start automatically when
+                the sender is online.
+              </div>
+            </>
+          )}
+          {fileProgress.length > 0 && (
+            <div className="flex flex-col w-full max-w-xs gap-2 mx-auto mt-4 sm:max-w-full">
+              {fileProgress.map((prog, idx) => (
+                <div key={idx} className="flex flex-col gap-1">
+                  <div className="flex justify-between text-xs">
+                    <span>Receiving {idx + 1}</span>
+                    <span>{prog}%</span>
+                  </div>
+                  <Progress value={prog} className="h-2" />
+                </div>
+              ))}
+            </div>
+          )}
+          {receivedFiles.length > 0 && (
+            <div className="flex flex-col gap-2 mt-4">
+              <div className="mb-1 font-medium">
+                Download Received File{receivedFiles.length > 1 ? 's' : ''}:
+              </div>
+              {receivedFiles.map((f, i) => (
+                <a
+                  key={i}
+                  href={f.url}
+                  download={f.name}
+                  className="underline text-primary"
+                >
+                  {f.name}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {uploading && (
+        <div className="flex flex-col items-center mt-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin" />
+            <span className="font-medium text-primary">Uploading...</span>
+          </div>
+          <Progress value={uploadProgress} className="w-full mt-2" />
+        </div>
+      )}
+      {qr && !uploading && <QRShare qr={qr} />}
+      <div className="mt-4 text-sm text-center">{status}</div>
+      {room && (qr || (!isSender && keyB64)) && (
+        <div className="flex flex-col items-center justify-center gap-2 mt-2">
+          <div className="flex items-center gap-2">
+            {peerOnline ? (
+              <CircleDot className="w-4 h-4 text-green-500" />
+            ) : (
+              <Circle className="w-4 h-4 text-gray-400 animate-pulse" />
+            )}
+            <span
+              className={`text-xs font-semibold ${peerOnline ? 'text-green-600' : 'text-gray-500'}`}
+            >
+              {peerOnline ? 'Peer Online' : 'Peer Offline'}
+            </span>
+            <span className="ml-2 text-xs">
+              {isSender ? 'You are the Sender' : 'You are the Receiver'}
+            </span>
+          </div>
+          {!isSender && !peerOnline && (
+            <div className="mt-2 text-sm text-center text-muted-foreground">
+              Waiting for the sender to connect...
+              <br />
+              Please keep this page open. The transfer will start automatically
+              when the sender is online.
+            </div>
+          )}
+        </div>
+      )}
+      {fileProgress.length > 0 && (
+        <ProgressList
+          files={
+            isSender
+              ? files
+              : Array(fileProgress.length).fill({ name: '', size: 0 })
+          }
+          progress={fileProgress}
+          isSender={isSender}
+        />
       )}
     </Card>
   );

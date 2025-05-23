@@ -3,22 +3,22 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <footer className="bg-muted py-8 border-t border-border">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="py-8 border-t bg-muted border-border">
+      <div className="container px-4 mx-auto">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
-            <h3 className="text-lg font-semibold mb-4">FileShareDrop</h3>
+            <h3 className="mb-4 text-lg font-semibold">FileShareDrop</h3>
             <p className="text-sm text-muted-foreground">
               Securely share files up to 50MB with expiring links.
             </p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-4">Links</h3>
+            <h3 className="mb-4 text-lg font-semibold">Links</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/about"
-                  className="hover:text-primary transition-colors"
+                  className="transition-colors hover:text-primary"
                 >
                   About
                 </Link>
@@ -26,7 +26,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="hover:text-primary transition-colors"
+                  className="transition-colors hover:text-primary"
                 >
                   Contact
                 </Link>
@@ -34,7 +34,7 @@ const Footer = () => {
               <li>
                 <Link
                   href="/privacy"
-                  className="hover:text-primary transition-colors"
+                  className="transition-colors hover:text-primary"
                 >
                   Privacy Policy
                 </Link>
@@ -42,20 +42,20 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
+            <h3 className="mb-4 text-lg font-semibold">Connect</h3>
             <ul className="space-y-2 text-sm">
               <li>
                 <a
-                  href="https://twitter.com/FileShareDrop"
-                  className="hover:text-primary transition-colors"
+                  href="https://github.com/IamJayPrakash/FileShareDrop/issues/new"
+                  className="transition-colors hover:text-primary"
                 >
-                  Twitter
+                  Report an Issue
                 </a>
               </li>
               <li>
                 <a
                   href="https://github.com/IamJayPrakash/FileShareDrop"
-                  className="hover:text-primary transition-colors"
+                  className="transition-colors hover:text-primary"
                 >
                   GitHub
                 </a>
@@ -63,7 +63,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        <div className="mt-8 text-center text-sm text-muted-foreground">
+        <div className="mt-8 text-sm text-center text-muted-foreground">
           &copy; {new Date().getFullYear()} FileShareDrop. All rights reserved.
         </div>
       </div>
