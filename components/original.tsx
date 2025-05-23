@@ -3,19 +3,15 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Upload, FileIcon, CheckCircle, AlertCircle, Copy } from 'lucide-react';
+import { Upload, CircleDot, Circle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { toast } from 'sonner';
 import io from 'socket.io-client';
-import QRCode from 'react-qr-code';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Share2, Send, MessageCircle, Clipboard } from 'lucide-react';
-import { Loader2, CircleDot, Circle } from 'lucide-react';
-import JSZip from 'jszip';
+import { Loader2 } from 'lucide-react';
 import FileList from './FileList';
 import ProgressList from './ProgressList';
 import QRShare from './QRShare';
@@ -892,7 +888,11 @@ export default function FileDropzone({
               `[${new Date().toISOString()}] Receiver error processing data channel theme:`,
               err
             );
-            setError('Failed to process received data: ' + err.message);
+            let errorMsg = 'Failed to process received data';
+            if (err && typeof err === 'object' && 'message' in err) {
+              errorMsg += ': ' + (err as any).message;
+            }
+            setError(errorMsg);
             console.error(
               `[${new Date().toISOString()}] Set error: Failed to process received data`
             );

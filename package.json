@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "prepare": "husky install",
+    "prettier": "prettier --check .",
     "postbuild": "next-sitemap",
     "lint": "next lint",
     "format": "prettier --write .",

@@ -73,7 +73,7 @@ export async function setupConnection(
   setStatus: (status: string) => void,
   setIsWaiting: (waiting: boolean) => void,
   setError: (error: string | null) => void,
-  setFileProgress: (progress: number[]) => void,
+  setFileProgress: React.Dispatch<React.SetStateAction<number[]>>,
   setReceivedFiles: (files: ReceivedFile[]) => void,
   setUploadProgress: (progress: number) => void,
   socketRef: React.MutableRefObject<ReturnType<typeof io> | null>,
@@ -499,7 +499,7 @@ export async function setupConnection(
                 return;
               }
               meta = parsed;
-              receivedFilesMeta = meta?.files;
+              receivedFilesMeta = meta?.files ?? [];
               receivedCount = 0;
               currentFileIdx = 0;
               receivedChunks = [];
@@ -801,7 +801,7 @@ async function handleFileReceived(
   setStatus: (status: string) => void,
   setUploadProgress: (progress: number) => void,
   setReceivedFiles: (files: ReceivedFile[]) => void,
-  setFileProgress: (progress: number[]) => void,
+  setFileProgress: React.Dispatch<React.SetStateAction<number[]>>,
   setError: (error: string | null) => void
 ) {
   try {
@@ -858,7 +858,7 @@ async function sendFileInChunks(
   file: File,
   key: CryptoKey,
   idx: number,
-  setFileProgress: (progress: number[]) => void,
+  setFileProgress: React.Dispatch<React.SetStateAction<number[]>>,
   setError: (error: string | null) => void
 ) {
   console.log(

@@ -6,7 +6,7 @@ import FileDropzone from '../../../components/FileDropzone';
 import { Card } from '../../../components/ui/card';
 
 interface SharePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function SharePageClient({ params }: SharePageProps) {

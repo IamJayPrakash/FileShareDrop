@@ -160,7 +160,8 @@ export default function FileDropzone({
       setJoined,
       setOfferStarted,
       setReceiverReady,
-      setTransferComplete
+      setTransferComplete,
+      peerId
     );
     setUploading(false);
     setSendDisabled(true);
@@ -197,7 +198,8 @@ export default function FileDropzone({
       setJoined,
       setOfferStarted,
       setReceiverReady,
-      setTransferComplete
+      setTransferComplete,
+      peerId
     );
     console.log(`[${new Date().toISOString()}] Receiver setup complete`);
   }
@@ -236,7 +238,8 @@ export default function FileDropzone({
         setJoined,
         setOfferStarted,
         setReceiverReady,
-        setTransferComplete
+        setTransferComplete,
+        peerId
       );
     }
   }, [isSender, files, qr, room, keyB64, cryptoKey]);
