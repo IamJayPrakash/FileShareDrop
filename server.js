@@ -5,10 +5,11 @@ const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigin = process.env.ORIGIN || 'http://localhost:3000';
 const io = socketIo(server, {
   path: '/api/signaling',
   cors: {
-    origin: 'http://localhost:3000',
+    origin: allowedOrigin,
     methods: ['GET', 'POST'],
   },
 });
