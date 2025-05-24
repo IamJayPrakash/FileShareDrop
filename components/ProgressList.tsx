@@ -64,7 +64,7 @@ export default function ProgressList({
   receivedFilesMeta?: FileMeta[];
 }>) {
   return (
-    <div className="flex flex-col w-full max-w-md gap-3 mx-auto mt-4">
+    <div className="flex flex-col w-full max-w-xs sm:max-w-md gap-3 mx-auto mt-4">
       {files.map((file, idx) => (
         <motion.div
           key={idx}

@@ -10,7 +10,7 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-      <div className="container flex items-center justify-between px-4 py-4 mx-auto">
+      <div className="container flex flex-wrap items-center justify-between px-4 py-4 mx-auto gap-2">
         <Link
           href="/"
           className="text-2xl font-bold text-primary dark:text-slate-900"
@@ -42,7 +42,7 @@ const Navbar = () => {
           <ThemeToggle />
         </nav>
         <button
-          className="md:hidden"
+          className="md:hidden ml-auto"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -55,7 +55,7 @@ const Navbar = () => {
       </div>
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="border-b md:hidden bg-background border-border">
+        <div className="border-b md:hidden bg-background border-border w-full">
           <div className="container flex flex-col gap-4 px-4 py-4 mx-auto">
             <Link
               href="/"
