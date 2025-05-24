@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 export default function QRShare({ qr }: { qr: string }) {
   return (
-    <div className="flex flex-col items-center mt-4">
+    <div className="flex flex-col items-center mt-4 w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
       <p className="mb-2 text-base font-medium">
         Scan this QR code to receive:
       </p>

@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="py-8 border-t bg-muted border-border">
       <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 text-center md:text-left">
           <div>
             <h3 className="mb-4 text-lg font-semibold">FileShareDrop</h3>
             <p className="text-sm text-muted-foreground">

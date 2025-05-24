@@ -10,7 +10,7 @@ export default function FileList({
   disabled?: boolean;
 }) {
   return (
-    <div className="flex flex-col w-full max-w-xs gap-2 mx-auto mb-2 overflow-y-auto max-h-40">
+    <div className="flex flex-col w-full max-w-xs sm:max-w-sm md:max-w-md gap-2 mx-auto mb-2 overflow-y-auto max-h-40">
       {files.map((file, idx) => (
         <div
           key={idx}
