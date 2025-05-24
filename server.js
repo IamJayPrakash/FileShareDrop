@@ -2,74 +2,149 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const winston = require('winston');
+require('dotenv').config();
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigin = process.env.ORIGIN || 'http://localhost:3000';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DDTHH:mm:ss.SSSZ' }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'server.log' }),
+  ],
+});
+
+const allowedOrigins = [
+  process.env.ORIGIN || 'https://file-share-drop.vercel.app',
+  'http://localhost:3000',
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        logger.warn(`Blocked CORS request from origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST'],
+  })
+);
+
+app.get('/health', (req, res) => {
+  logger.info('Health check requested');
+  res.status(200).json({ status: 'OK', uptime: process.uptime() });
+});
+
 const io = socketIo(server, {
   path: '/api/signaling',
   cors: {
-    origin: allowedOrigin,
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
   },
 });
 
-app.use(cors());
-
 const rooms = new Map();
 
 io.on('connection', (socket) => {
-  console.log(`[${new Date().toISOString()}] New connection: ${socket.id}`);
+  logger.info(`New connection: ${socket.id}`);
 
-  socket.on('join', (room) => {
-    socket.join(room);
-    if (!rooms.has(room)) {
-      rooms.set(room, new Set());
+  socket.on('join', ({ room, sessionId }) => {
+    if (
+      !room ||
+      !sessionId ||
+      typeof room !== 'string' ||
+      typeof sessionId !== 'string' ||
+      room.length > 50 ||
+      sessionId.length > 50
+    ) {
+      logger.warn(
+        `Invalid join request from ${socket.id}: room=${room}, sessionId=${sessionId}`
+      );
+      socket.emit('error', 'Invalid room or session ID');
+      return;
     }
-    rooms.get(room).add(socket.id);
-    console.log(
-      `[${new Date().toISOString()}] ${socket.id} joined room: ${room}`
-    );
-    console.log(
-      `[${new Date().toISOString()}] Room ${room} clients:`,
-      Array.from(rooms.get(room))
-    );
-    socket.emit('joined', { id: socket.id });
-    socket.to(room).emit('peer-online');
+    socket.join(`room-${room}`);
+    if (!rooms.has(room)) {
+      rooms.set(room, new Map());
+    }
+    rooms.get(room).set(socket.id, { sessionId });
+    logger.info(`${socket.id} joined room: ${room}, sessionId: ${sessionId}`);
+    logger.info(`Room ${room} clients:`, Array.from(rooms.get(room).keys()));
+    socket.emit('joined', socket.id);
+    socket.to(`room-${room}`).emit('peer-online');
+    logger.info(`Emitted peer-online to room-${room}`);
   });
 
-  socket.on('signal', ({ target, signal }) => {
-    console.log(
-      `[${new Date().toISOString()}] Signal from ${socket.id} to ${target}`
-    );
-    if (target === socket.id) {
-      console.warn(
-        `[${new Date().toISOString()}] Ignoring self-signal from ${socket.id}`
+  socket.on('signal', ({ target, signal, sessionId }) => {
+    if (!target || !signal || !sessionId) {
+      logger.warn(
+        `Invalid signal from ${socket.id}: target=${target}, sessionId=${sessionId}`
       );
       return;
     }
-    io.to(target).emit('signal', { from: socket.id, signal });
+    logger.info(
+      `Signal from ${socket.id} to ${target}, type: ${signal.type || 'candidate'}, sessionId: ${sessionId}`
+    );
+    if (target.startsWith('room-')) {
+      socket.to(target).emit('signal', { from: socket.id, signal, sessionId });
+    } else {
+      io.to(target).emit('signal', { from: socket.id, signal, sessionId });
+    }
+  });
+
+  socket.on('transfer-complete', ({ room }) => {
+    logger.info(`Transfer complete in room: ${room}`);
+    socket.to(`room-${room}`).emit('transfer-complete');
+    rooms.delete(room);
+    socket.leave(`room-${room}`);
   });
 
   socket.on('disconnect', () => {
-    console.log(`[${new Date().toISOString()}] ${socket.id} disconnected`);
+    logger.info(`${socket.id} disconnected`);
     for (const [room, clients] of rooms.entries()) {
       if (clients.has(socket.id)) {
         clients.delete(socket.id);
-        socket.to(room).emit('peer-offline');
+        socket.to(`room-${room}`).emit('peer-offline');
         if (clients.size === 0) {
           rooms.delete(room);
+          logger.info(`Deleted empty room: ${room}`);
         }
-        console.log(
-          `[${new Date().toISOString()}] Room ${room} clients:`,
-          Array.from(clients)
-        );
+        logger.info(`Room ${room} clients:`, Array.from(clients.keys()));
       }
     }
   });
 });
 
+setInterval(
+  () => {
+    for (const [room, clients] of rooms.entries()) {
+      if (clients.size === 0) {
+        rooms.delete(room);
+        logger.info(`Cleaned up orphaned room: ${room}`);
+      }
+    }
+  },
+  60 * 60 * 1000
+);
+
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
-  console.log(`Signaling server listening on port ${PORT}`);
+  logger.info(`Signaling server listening on port ${PORT}`);
+});
+
+process.on('uncaughtException', (err) => {
+  logger.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });

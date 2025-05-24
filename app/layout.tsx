@@ -242,7 +242,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Navbar />
           <main>{children}</main>
           <Footer />
-          <Toaster position="bottom-right" richColors closeButton />
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            toastOptions={{
+              className: 'toast-success',
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

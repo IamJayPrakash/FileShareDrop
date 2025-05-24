@@ -36,4 +36,10 @@ NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
 # Server port for BE
 PORT=3001
 
+
+# client/.env here https://dashboard.metered.ca/turnserver
+NEXT_PUBLIC_TURN_USERNAME=
+NEXT_PUBLIC_TURN_CREDENTIAL=
+METERED_API_KEY=
+
 ```
