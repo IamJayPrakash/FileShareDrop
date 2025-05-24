@@ -1,4 +1,4 @@
 module.exports = {
-  siteUrl: 'https://filesharedrop.com',
+  siteUrl: 'https://file-share-drop.vercel.app/',
   generateRobotsTxt: true,
 };

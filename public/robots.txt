@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://filesharedrop.com
+Host: https://file-share-drop.vercel.app/
 
 # Sitemaps
-Sitemap: https://filesharedrop.com/sitemap.xml
+Sitemap: https://file-share-drop.vercel.app/sitemap.xml

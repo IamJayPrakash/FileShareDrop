@@ -2,6 +2,14 @@
   "name": "filesharedrop",
   "version": "1.0.0",
   "private": true,
+  "description": "A  free file sharing application built with Next.js, Express, and Socket.io.",
+  "author": "Jay Prakash",
+  "license": "MIT",
+  "homepage": "https://file-share-drop.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IamJayPrakash/FileShareDrop"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
