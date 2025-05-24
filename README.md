@@ -5,23 +5,35 @@
 `env.example`
 
 ```
-# Environment variables for FileShareDrop
-
 # MongoDB connection string
-MONGODB_URI=
+MONGODB_URI=your-mongodb-connection-string
 
 # Google SMTP credentials
 SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_USER=
-SMTP_PASS=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-email-app-password
+
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # Email addresses
 MAIL_FROM="FileShareDrop <noreply@filesharedrop.com>"
-MAIL_TO=
-EMAIL_USER=
-EMAIL_PASSWORD=
+MAIL_TO=your-email@gmail.com
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-email-app-password
+
+# Application BE URLs
+ORIGIN=https://your-app-domain.com
+
+NEXT_PUBLIC_SIGNALING_URL=https://your-signaling-server-url.com
+NEXT_PUBLIC_BASE_URL=https://your-app-domain.com
+
+# Local development alternatives (optional)
+# NEXT_PUBLIC_SIGNALING_URL=http://localhost:3001
+# NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+# Server port for BE
+PORT=3001
 
 ```
