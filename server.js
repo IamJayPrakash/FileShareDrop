@@ -21,7 +21,8 @@ const logger = winston.createLogger({
 });
 
 const allowedOrigins = [
-  process.env.ORIGIN || 'https://file-share-drop.vercel.app',
+  '*',
+  'https://file-share-drop.vercel.app',
   'http://localhost:3000',
 ];
 app.use(
