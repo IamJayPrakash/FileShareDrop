@@ -188,6 +188,9 @@ export const metadata: Metadata = {
   generator: 'Next.js',
   applicationName: 'FileShareDrop',
   referrer: 'origin-when-cross-origin',
+  verification: {
+    google: '1mlwv5pCe6_Ncql6DKNDstpFNiDWNEt8FPKblJ0fAI0',
+  },
 };
 
 interface RootLayoutProps {
