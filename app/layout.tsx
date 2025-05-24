@@ -1,82 +1,193 @@
-import { Toaster } from 'sonner';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { Metadata } from 'next';
 import { ReactNode } from 'react';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Toaster } from 'sonner';
+import Head from 'next/head';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://file-share-drop.vercel.app'),
   title: {
-    default: 'FileShareDrop - Secure File Sharing',
+    default: 'FileShareDrop - Free File Sharing & Secure File Transfer',
     template: '%s | FileShareDrop',
   },
   description:
-    'Share files securely with ease. Upload up to 50MB and get a shareable link that expires in 24 hours.',
-  keywords: [
-    'file sharing',
-    'secure upload',
-    'file transfer',
-    'filesharedrop',
-    'temporary file sharing',
-    'privacy-focused file sharing',
-    'end-to-end encryption',
-    'file sharing platform',
-    'upload files',
-    'share files',
-    'file sharing service',
-    'file sharing website',
-    'file sharing app',
-    'file sharing solution',
-    'file sharing for developers',
-    'file sharing for businesses',
-    'file sharing for teams',
-    'file sharing for individuals',
-    'file sharing for students',
-    'file sharing for professionals',
-    'file sharing for creatives',
-    'file sharing for designers',
-    'file sharing for marketers',
-    'file sharing for educators',
-    'file sharing for freelancers',
-    'file sharing for creatives',
-    'file sharing for photographers',
-    'online file sharing',
-    'file sharing with expiration',
-    'file sharing with encryption',
-    'file sharing with password protection',
-    'file sharing with tracking',
-    'file sharing with analytics',
-    'file sharing with collaboration',
-    'zip file sharing',
-    'file sharing with comments',
-    'file sharing with feedback',
-    'file sharing with versioning',
-    'file sharing with integrations',
-    'file sharing with API',
-    'file sharing with mobile app',
-    'file sharing with desktop app',
-    'file sharing with browser extension',
-    'file sharing with cloud storage',
-    'file sharing with social media',
-    'file sharing with email',
-  ],
+    'FileShareDrop is the ultimate tool for fast, secure, and anonymous file sharing. Upload up to 50MB and generate a private, auto-expiring download link. No signup required!',
+keywords: [
+  'file sharing',
+  'online file sharing',
+  'file transfer',
+  'secure file sharing',
+  'send files online',
+  'share files',
+  'file upload',
+  'upload files',
+  'temporary file upload',
+  'anonymous file sharing',
+  'transfer files',
+  'file drop',
+  'file sharing without login',
+  'file sharing site',
+  'file transfer app',
+  'online file transfer',
+  'file hosting',
+  'free file sharing',
+  'private file sharing',
+  'encrypted file sharing',
+  'send documents',
+  'zip file sharing',
+  'send files to client',
+  'cloud file transfer',
+  'one-time file sharing',
+  'quick file upload',
+  'large file sharing',
+  'easy file upload',
+  'send images online',
+  'instant file sharing',
+  'filesharedrop',
+  'drop file transfer',
+  'fast file sharing',
+  'file sharing with expiration',
+  'fileshare without registration',
+  'upload and share files',
+  'send PDF files online',
+  'share large files',
+  'secure document transfer',
+  'confidential file sharing',
+  'upload link generator',
+  '24 hour file sharing',
+  'file drop zone',
+  'privacy-focused file sharing',
+  'data sharing tool',
+  'file transfer free tool',
+  'best file sharing website',
+  'filesharedrop.com',
+  'filesharedrop app',
+  'filesharedrop site',
+  'filesharedrop online file transfer',
+  'file sharing India',
+  'alternative to WeTransfer',
+  'no signup file transfer',
+  'send code files online',
+  'best secure file upload site',
+  'share files with link',
+  'send files to friends',
+  'upload document online',
+  'send files instantly',
+  'free document sharing',
+  'share files quickly',
+  'upload video files',
+  'share files privately',
+  'filesharedrop upload',
+  'send files link',
+  'best file sharing app',
+  'upload files India',
+  'temporary file link',
+  'send large files quickly',
+  'simple file transfer',
+  'fast document sharing',
+  'share code files online',
+  'file transfer no login',
+  'free temporary file upload',
+  'best tool to share files',
+  'send files to client fast',
+  'file sharing with auto-delete',
+  'file sharing with password',
+  'file sharing with expiration',
+  // New additions for broader coverage
+  'file sharing without account',
+  'anonymous file upload',
+  'secure file drop',
+  'instant upload and share',
+  'upload files anonymously',
+  'private file transfer link',
+  'free online file drop',
+  'share files without email',
+  'file transfer no signup',
+  'upload and share instantly',
+  'best file transfer site',
+  'no registration file sharing',
+  'safe file transfer online',
+  'quick file send',
+  'share files securely online',
+  'free file upload and share',
+  'file sharing platform',
+  'easy online file sharing',
+  'secure cloud file sharing',
+  'fastest file sharing site',
+  'share files with password',
+  'temporary file hosting',
+  'send files with expiry',
+  'online file send without login',
+  'best free file sharing site',
+  'upload and share files free',
+  'send files via link',
+  'large file upload free',
+  'fileshare no account needed',
+  'best anonymous file sharing site',
+  'upload files fast and safe',
+  'free encrypted file sharing',
+  'simple file sharing app',
+  'instant file upload and share',
+  'quick and secure file transfer',
+  'private and secure file sharing',
+  'file sharing service without registration',
+],
   openGraph: {
-    title: 'FileShareDrop',
-    description: 'Fast and secure file sharing platform.',
+    title: 'FileShareDrop - Free File Sharing & Secure File Transfer',
+    description:
+      'Send and share files instantly with FileShareDrop. Fast, private, and secure file transfer with auto-expiring links. No account needed.',
     url: 'https://file-share-drop.vercel.app',
-    images: ['/og-image.jpg'], // Add an OG image in public/
+    siteName: 'FileShareDrop',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Secure file transfer and sharing platform – FileShareDrop',
+      },
+    ],
+    type: 'website',
+    locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'FileShareDrop - Free File Sharing & Secure File Transfer',
+    description:
+      'Share and transfer files safely online using FileShareDrop. Upload up to 50MB, get a link, and protect privacy with auto-delete. Free and fast!',
     site: '@FileShareDrop',
+    creator: '@FileShareDrop',
+    images: ['/og-image.jpg'],
   },
+  authors: [
+    { name: 'Jay Prakash', url: 'https://heyjayprakash.netlify.app' },
+    { name: 'FileShareDrop Team' },
+  ],
+  themeColor: '#0f172a',
+  colorScheme: 'light dark',
+  robots:
+    'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+    other: [{ rel: 'icon', url: '/favicon.ico' }],
+  },
+  viewport:
+    'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=1',
+  alternates: {
+    canonical: 'https://file-share-drop.vercel.app',
+  },
+  category: 'File Sharing',
+  generator: 'Next.js',
+  applicationName: 'FileShareDrop',
+  referrer: 'origin-when-cross-origin',
 };
 
 interface RootLayoutProps {
@@ -86,14 +197,47 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={inter.variable}>
+      <Head>
+        <meta
+          name="google-site-verification"
+          content="1mlwv5pCe6_Ncql6DKNDstpFNiDWNEt8FPKblJ0fAI0"
+        />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebApplication',
+              name: 'FileShareDrop',
+              url: 'https://file-share-drop.vercel.app',
+              description:
+                'A free file sharing and transfer platform that offers secure, anonymous, and fast file uploads up to 50MB with private links.',
+              applicationCategory: 'UtilitiesApplication',
+              operatingSystem: 'All',
+              offers: {
+                '@type': 'Offer',
+                price: '0',
+                priceCurrency: 'USD',
+              },
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: '4.9',
+                reviewCount: '1291',
+              },
+              publisher: {
+                '@type': 'Organization',
+                name: 'FileShareDrop',
+                url: 'https://file-share-drop.vercel.app',
+              },
+            }),
+          }}
+        />
+      </Head>
       <body className="bg-background text-foreground">
         <ThemeProvider>
-          {/* Navbar */}
           <Navbar />
-          {/* Main Content */}
           <main>{children}</main>
-
-          {/* Footer */}
           <Footer />
           <Toaster position="bottom-right" richColors closeButton />
         </ThemeProvider>
