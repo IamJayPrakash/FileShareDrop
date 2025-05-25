@@ -257,8 +257,6 @@ export const metadata: Metadata = {
     { name: 'Jay Prakash', url: 'https://heyjayprakash.netlify.app' },
     { name: 'FileShareDrop Team' },
   ],
-  themeColor: '#0f172a',
-  colorScheme: 'light dark',
   robots:
     'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   manifest: '/site.webmanifest',
@@ -268,8 +266,6 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
     other: [{ rel: 'icon', url: '/favicon.ico' }],
   },
-  viewport:
-    'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=1',
   alternates: {
     canonical: 'https://file-share-drop.vercel.app',
   },
@@ -280,6 +276,15 @@ export const metadata: Metadata = {
   verification: {
     google: '1mlwv5pCe6_Ncql6DKNDstpFNiDWNEt8FPKblJ0fAI0',
   },
+};
+
+export const viewport = {
+  themeColor: '#0f172a',
+  colorScheme: 'light dark',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 interface RootLayoutProps {

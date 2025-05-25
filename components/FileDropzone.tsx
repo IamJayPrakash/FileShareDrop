@@ -460,7 +460,7 @@ export default function FileDropzone({
 
   return (
     <Card
-      className="w-full max-w-2xl mx-auto bg-card text-card-foreground shadow-lg"
+      className="w-full max-w-2xl mx-auto bg-gradient-to-br from-blue-50/80 to-blue-100/60 dark:from-gray-900/80 dark:to-gray-800/60 text-card-foreground shadow-2xl border-0 backdrop-blur-md animate-fade-in"
       role="region"
       aria-label="File transfer interface"
     >
@@ -468,16 +468,16 @@ export default function FileDropzone({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center py-12 px-4 bg-gradient-to-br from-background to-muted/20 rounded-lg shadow-md bg-white/80 dark:bg-stone-600/80 backdrop-blur-md"
+          className="flex flex-col items-center justify-center py-12 px-4"
         >
-          <h2 className="text-xl font-semibold text-primary mb-4">
+          <h2 className="text-2xl font-extrabold text-primary mb-4 tracking-tight drop-shadow-sm">
             Receiving Files
           </h2>
           {renderReceiveMode()}
           {room && !isSender && keyB64 && (
             <div className="flex items-center gap-2 mt-4">
               {peerOnline ? (
-                <CircleDot className="w-4 h-4 text-green-500" />
+                <CircleDot className="w-4 h-4 text-green-500 animate-pulse" />
               ) : (
                 <Circle className="w-4 h-4 text-gray-400 animate-pulse" />
               )}
@@ -498,7 +498,7 @@ export default function FileDropzone({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="p-3 mb-4 text-center text-destructive bg-destructive/10 rounded"
+              className="p-3 mb-4 text-center text-destructive bg-destructive/10 rounded shadow"
               role="alert"
             >
               {error}
@@ -511,11 +511,11 @@ export default function FileDropzone({
             onDragLeave={onDragLeave}
             onClick={handleClick}
             className={`
-              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+              border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer
               transition-all duration-300 ease-in-out
               ${isDragOver ? 'border-primary bg-primary/10 scale-[1.02]' : 'border-border hover:border-primary/50 hover:bg-accent/20'}
               ${uploading ? 'pointer-events-none opacity-75' : ''}
-              bg-background text-foreground
+              bg-background text-foreground shadow-md
             `}
           >
             <input
@@ -543,7 +543,7 @@ export default function FileDropzone({
                     disabled={uploading}
                   />
                   <Button
-                    className="px-4 py-2 mt-2 text-primary-foreground rounded bg-primary hover:bg-primary/90"
+                    className="px-6 py-2 mt-2 text-primary-foreground rounded-lg bg-primary hover:bg-primary/90 shadow-lg text-lg font-semibold"
                     type="button"
                     onClick={(e) => {
                       console.log(
@@ -559,7 +559,7 @@ export default function FileDropzone({
                   </Button>
                   {(qr || transferComplete) && (
                     <Button
-                      className="px-4 py-2 mt-2 text-secondary-foreground rounded bg-secondary hover:bg-secondary/90"
+                      className="px-6 py-2 mt-2 text-secondary-foreground rounded-lg bg-secondary hover:bg-secondary/90 shadow text-base"
                       type="button"
                       onClick={handleReload}
                       aria-label="Reload to send new files"
@@ -570,14 +570,14 @@ export default function FileDropzone({
                 </>
               ) : (
                 <>
-                  <Upload className="w-12 h-12 text-primary" />
+                  <Upload className="w-16 h-16 text-primary" />
                   <div className="space-y-2">
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="text-2xl font-bold text-foreground tracking-tight">
                       Drop your files here
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-base text-muted-foreground">
                       or{' '}
-                      <span className="font-medium text-primary">
+                      <span className="font-semibold text-primary underline underline-offset-4">
                         click to browse
                       </span>
                     </p>
@@ -593,23 +593,25 @@ export default function FileDropzone({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center mt-6"
+              className="flex flex-col items-center mt-8"
             >
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin" />
-                <span className="font-medium text-primary">Processing...</span>
+                <div className="w-10 h-10 border-4 rounded-full border-primary border-t-transparent animate-spin" />
+                <span className="font-semibold text-primary text-lg">
+                  Processing...
+                </span>
               </div>
-              <Progress value={uploadProgress} className="w-full mt-2" />
+              <Progress value={uploadProgress} className="w-full mt-4" />
             </motion.div>
           )}
           {qr && !uploading && <QRShare qr={qr} />}
-          <div className="mt-4 text-sm text-center text-foreground">
+          <div className="mt-6 text-base text-center text-foreground">
             {status}
           </div>
           {room && qr && isSender && (
-            <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="flex items-center justify-center gap-2 mt-4">
               {peerOnline ? (
-                <CircleDot className="w-4 h-4 text-green-500" />
+                <CircleDot className="w-4 h-4 text-green-500 animate-pulse" />
               ) : (
                 <Circle className="w-4 h-4 text-gray-400 animate-pulse" />
               )}

@@ -1,4 +1,4 @@
-import { FileIcon } from 'lucide-react';
+import { FileIcon, X } from 'lucide-react';
 
 export default function FileList({
   files,
@@ -9,16 +9,17 @@ export default function FileList({
   onRemove: (idx: number) => void;
   disabled?: boolean;
 }) {
+  if (!files.length) return null;
   return (
-    <div className="flex flex-col w-full max-w-xs gap-2 mx-auto mb-2 overflow-y-auto max-h-40">
+    <div className="flex flex-col w-full max-w-sm gap-2 mx-auto mb-2 overflow-y-auto max-h-40">
       {files.map((file, idx) => (
         <div
           key={idx}
-          className="flex items-center justify-between gap-2 px-2 py-1 rounded bg-muted"
+          className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-muted border border-border shadow-sm"
         >
           <div className="flex items-center min-w-0 gap-2">
             <FileIcon className="w-5 h-5 text-primary" />
-            <span className="text-sm font-medium truncate max-w-[90px]">
+            <span className="text-sm font-semibold truncate max-w-[120px] text-foreground">
               {file.name}
             </span>
             <span className="ml-2 text-xs text-muted-foreground">
@@ -28,15 +29,17 @@ export default function FileList({
             </span>
           </div>
           <button
+            title="Remove file"
+            aria-label="Remove file"
             type="button"
-            className="text-xs underline text-destructive"
+            className="text-xs font-medium px-2 py-1 rounded bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               onRemove(idx);
             }}
             disabled={disabled}
           >
-            Remove
+            <X className="w-4 h-4" />
           </button>
         </div>
       ))}
