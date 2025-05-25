@@ -2,8 +2,9 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Menu, X } from 'lucide-react';
+import { Menu, Share, Share2, ShareIcon, X } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import Image from 'next/image';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,12 +12,21 @@ const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="container flex items-center justify-between px-4 py-4 mx-auto">
-        <Link
-          href="/"
-          className="text-2xl font-bold text-primary dark:text-slate-900"
-        >
-          FileShareDrop
-        </Link>
+        <div className="flex gap-x-1 align-middle">
+          <Image
+            src="/logo.png"
+            alt="FileShareDrop Logo"
+            width={30}
+            height={30}
+            className="rounded-full"
+          />
+          <Link
+            href="/"
+            className="text-2xl font-bold text-primary dark:text-slate-900"
+          >
+            FileShareDrop
+          </Link>
+        </div>
         <nav className="items-center hidden gap-6 md:flex">
           <Link
             href="/"
@@ -36,8 +46,20 @@ const Navbar = () => {
           >
             Contact
           </Link>
+          <Link
+            href="/privacy"
+            className="text-sm transition-colors hover:text-primary"
+          >
+            Privacy
+          </Link>
+          <Link
+            href="/help"
+            className="text-sm transition-colors hover:text-primary"
+          >
+            Help
+          </Link>
           <Button variant="default" asChild>
-            <Link href="/upload">Upload Now</Link>
+            <Link href="/upload">Start Sharing Now</Link>
           </Button>
           <ThemeToggle />
         </nav>
@@ -78,9 +100,23 @@ const Navbar = () => {
             >
               Contact
             </Link>
+            <Link
+              href="/privacy"
+              className="text-sm transition-colors hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Privacy
+            </Link>
+            <Link
+              href="/help"
+              className="text-sm transition-colors hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Help
+            </Link>
             <Button variant="default" asChild>
               <Link href="/upload" onClick={() => setIsMenuOpen(false)}>
-                Upload Now
+                Start Sharing Now
               </Link>
             </Button>
             <div className="flex justify-end mt-2">

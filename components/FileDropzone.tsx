@@ -110,7 +110,7 @@ export default function FileDropzone({
         }
         resetState();
         router.push('/');
-      }, 120000); // 2 minutes for manual downloads
+      }, 140000); // 2 minutes and 20 seconds for manual downloads
     }
   }, [transferComplete, resetState, room, isSender, router]);
 
@@ -237,6 +237,7 @@ export default function FileDropzone({
     console.log(`[${new Date().toISOString()}] Handling reload`);
     resetState();
     router.push('/');
+    window.location.reload();
   }, [resetState, router]);
 
   const onDrop = useCallback(
@@ -349,7 +350,7 @@ export default function FileDropzone({
             </div>
           )}
           <p className="text-sm text-muted-foreground text-center">
-            Redirecting to homepage in 2 minutes...
+            Redirecting to homepage in 2 minutes and 20 seconds...
           </p>
         </motion.div>
       );
