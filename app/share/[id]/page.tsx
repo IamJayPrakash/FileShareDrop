@@ -52,12 +52,12 @@ export default function SharePageClient({ params }: SharePageProps) {
   if (!id || !key) {
     return (
       <motion.div
-        className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-zinc-900 dark:to-zinc-800"
+        className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-black dark:to-zinc-800"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        <Card className="w-full max-w-md p-6 bg-gradient-to-r from-primary/10 to-secondary/10 dark:bg-zinc-900/90 dark:from-zinc-900 dark:to-zinc-800 backdrop-blur-md shadow-lg rounded-lg">
+        <Card className="w-full max-w-md p-6 bg-gradient-to-r from-primary/10 to-secondary/10 dark:bg-zinc-900/90 dark:from-black dark:to-zinc-800 backdrop-blur-md shadow-lg rounded-lg">
           <motion.div
             variants={childVariants}
             className="flex flex-col items-center gap-4"
@@ -83,7 +83,7 @@ export default function SharePageClient({ params }: SharePageProps) {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-zinc-900 dark:to-zinc-800 py-12"
+      className="flex flex-col items-center justify-center min-h-[60vh] bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-black dark:to-zinc-800 py-12"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
