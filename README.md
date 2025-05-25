@@ -1,6 +1,8 @@
 #File Share Drop
 
-'Share files securely with ease. Upload up to 50MB and get a shareable link that expires in 24 hours.'
+#Share files securely with ease. Upload up to 50MB and get a shareable link that expires in 24 hours.
+
+![Alt](https://repobeats.axiom.co/api/embed/5b06e4f9c0b8e5a7a7e065bf289b0f751835713c.svg "Repobeats analytics image")
 
 `env.example`
 
